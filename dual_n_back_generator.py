@@ -35,15 +35,49 @@ def _require_modules():
 
 _require_modules()
 
-import numpy as np
-from moviepy.editor import (
+
+def _import_with_guidance():
+    """Import heavy dependencies with clearer failure messaging."""
+    try:
+        import numpy as np_local
+    except ImportError:  # pragma: no cover - defensive
+        print("Failed to import numpy even after dependency check. Try `pip install numpy`.")
+        sys.exit(1)
+
+    try:
+        from moviepy.editor import (
+            AudioFileClip,
+            CompositeAudioClip,
+            VideoClip,
+            ColorClip,
+            concatenate_videoclips,
+        )
+        from moviepy.audio.AudioClip import AudioArrayClip
+    except ImportError:  # pragma: no cover - defensive
+        print(
+            "Failed to import moviepy even after dependency check. "
+            "Install it with `pip install moviepy` and rerun."
+        )
+        sys.exit(1)
+
+    return np_local, (
+        AudioFileClip,
+        CompositeAudioClip,
+        VideoClip,
+        ColorClip,
+        concatenate_videoclips,
+        AudioArrayClip,
+    )
+
+
+np, (
     AudioFileClip,
     CompositeAudioClip,
     VideoClip,
     ColorClip,
     concatenate_videoclips,
-)
-from moviepy.audio.AudioClip import AudioArrayClip
+    AudioArrayClip,
+) = _import_with_guidance()
 
 # -----------------------------------------------------------------------------
 # Configuration constants (safe to tweak)
