@@ -17,8 +17,7 @@ def _require_modules():
     """Fail fast with a helpful message if optional dependencies are missing."""
     required = {
         "numpy": "numpy",
-        "moviepy.editor": "moviepy",
-        "moviepy.audio.AudioClip": "moviepy",
+        "moviepy": "moviepy",
     }
     missing = []
     for spec_name, install_name in required.items():
@@ -45,14 +44,9 @@ def _import_with_guidance():
         sys.exit(1)
 
     try:
-        from moviepy.editor import (
-            AudioFileClip,
-            CompositeAudioClip,
-            VideoClip,
-            ColorClip,
-            concatenate_videoclips,
-        )
-        from moviepy.audio.AudioClip import AudioArrayClip
+        import moviepy as mp_local
+        import moviepy.editor  # noqa: F401 - ensure editor submodule is available
+        import moviepy.audio.AudioClip  # noqa: F401 - ensure audio submodule is available
     except ImportError:  # pragma: no cover - defensive
         print(
             "Failed to import moviepy even after dependency check. "
@@ -60,24 +54,17 @@ def _import_with_guidance():
         )
         sys.exit(1)
 
-    return np_local, (
-        AudioFileClip,
-        CompositeAudioClip,
-        VideoClip,
-        ColorClip,
-        concatenate_videoclips,
-        AudioArrayClip,
-    )
+    return np_local, mp_local
 
 
-np, (
-    AudioFileClip,
-    CompositeAudioClip,
-    VideoClip,
-    ColorClip,
-    concatenate_videoclips,
-    AudioArrayClip,
-) = _import_with_guidance()
+np, mp = _import_with_guidance()
+
+AudioFileClip = mp.editor.AudioFileClip
+CompositeAudioClip = mp.editor.CompositeAudioClip
+VideoClip = mp.editor.VideoClip
+ColorClip = mp.editor.ColorClip
+concatenate_videoclips = mp.editor.concatenate_videoclips
+AudioArrayClip = mp.audio.AudioClip.AudioArrayClip
 
 # -----------------------------------------------------------------------------
 # Configuration constants (safe to tweak)
