@@ -8,7 +8,32 @@ import random
 import datetime
 import subprocess
 import shutil
+import importlib.util
+import sys
 from typing import List, Dict, Tuple
+
+
+def _require_modules():
+    """Fail fast with a helpful message if optional dependencies are missing."""
+    required = {
+        "numpy": "numpy",
+        "moviepy.editor": "moviepy",
+        "moviepy.audio.AudioClip": "moviepy",
+    }
+    missing = []
+    for spec_name, install_name in required.items():
+        if importlib.util.find_spec(spec_name) is None:
+            missing.append(install_name)
+    if missing:
+        mods = ", ".join(sorted(set(missing)))
+        print(
+            f"Missing required packages: {mods}. "
+            f"Install them with `pip install {mods}` and rerun."
+        )
+        sys.exit(1)
+
+
+_require_modules()
 
 import numpy as np
 from moviepy.editor import (
